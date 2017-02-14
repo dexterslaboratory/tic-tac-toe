@@ -22,7 +22,25 @@ object Api {
     }
   }
 
-  def whoWon(board: FinishedBoard): GameResult = ???
+  def checkWinningPosition(positions: List[Position]): Boolean = {
+    def straightWinningPositions(rowsOrColumns: List[Int]) = {
+      val ps = List(0,1,2)
+      ps.map(p => rowsOrColumns.count(p == _)).count(_ == 3) == 1
+    }
+
+    val diagonalWinningPositions = positions.map(p => p.x - p.y).count(_ == 0) == 3 || positions.map(p => p.x + p.y).count(_ == 2) == 3
+
+    straightWinningPositions(positions.map(_.x)) || straightWinningPositions(positions.map(_.y)) || diagonalWinningPositions
+  }
+
+  def whoWon(board: FinishedBoard): GameResult = {
+    val positionsByPlayerO = board.cells.map(o => if(o.player == PlayerO) o.position else Position)
+    val positionsByPlayerX = board.cells.map(o => if(o.player == PlayerX) o.position else Position)
+
+    if(checkWinningPosition(positionsByPlayerO)) Winner(PlayerO)
+    else if (checkWinningPosition(positionsByPlayerX)) Winner(PlayerX)
+    else Draw
+  }
 
   def playerAt(board: HasBeenPlayed, position: Position): Option[Player] = ???
 
