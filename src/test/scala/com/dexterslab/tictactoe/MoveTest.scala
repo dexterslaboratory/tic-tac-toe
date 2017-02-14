@@ -31,4 +31,30 @@ class MoveTest extends FlatSpec with Matchers {
     moveResult should be(successfulMove)
   }
 
+  it should "return an invalid move if someone tries to move to an already occupied cell" in {
+    val occupiedPosition = Position(0, 1)
+    val newPosition = Position(0, 1)
+    val playerO = PlayerO
+    val playerX = PlayerX
+    val occupiedCell = OccupiedCell(occupiedPosition, playerO)
+    val currentBoard = InPlayBoard(List(occupiedCell))
+    val moveResult = move(currentBoard, newPosition, playerX)
+
+    moveResult should be(InvalidMove)
+  }
+
+  it should "return a successful move with a finished board if nine moves have been played" in {
+    val positions = (for (i <- 0 to 2;
+                          j <- 0 to 2) yield Position(i, j)).toList.take(8)
+    val playerO = PlayerO
+    val playerX = PlayerX
+    val cells = positions.map(OccupiedCell(_, playerO))
+    val newPosition = Position(2, 2)
+    val currentBoard = InPlayBoard(cells)
+    val successfulMove = SuccessfulMove(FinishedBoard(OccupiedCell(newPosition, playerX) :: cells))
+    val moveResult = move(currentBoard, newPosition, playerX)
+
+    moveResult should be(successfulMove)
+  }
+
 }

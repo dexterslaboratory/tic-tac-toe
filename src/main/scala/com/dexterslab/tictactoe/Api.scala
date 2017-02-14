@@ -8,11 +8,15 @@ object Api {
     board match {
       case EmptyBoard => SuccessfulMove(InPlayBoard(List(OccupiedCell(position, player))))
       case InPlayBoard(cells) => {
-        val newCells = OccupiedCell(position, player) :: cells
-        if (newCells.count(isOccupied) == 9) {
-          SuccessfulMove(FinishedBoard(newCells.map { case cell: OccupiedCell => cell }))
+        if (cells.exists(cell => isOccupiedAtPosition(cell, position))) {
+          InvalidMove
         } else {
-          SuccessfulMove(InPlayBoard(newCells))
+          val newCells = OccupiedCell(position, player) :: cells
+          if (newCells.count(isOccupied) == 9) {
+            SuccessfulMove(FinishedBoard(newCells.map { case cell: OccupiedCell => cell }))
+          } else {
+            SuccessfulMove(InPlayBoard(newCells))
+          }
         }
       }
     }
@@ -29,6 +33,11 @@ object Api {
   private def isOccupied(cell: Cell): Boolean = cell match {
     case EmptyCell(_) => false
     case OccupiedCell(_, _) => true
+  }
+
+  private def isOccupiedAtPosition(cell: Cell, position: Position) = cell match {
+    case OccupiedCell(p, _) if p == position  => true
+    case _                                    => false
   }
 
 }
