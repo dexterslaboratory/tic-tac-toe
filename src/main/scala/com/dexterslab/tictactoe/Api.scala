@@ -4,15 +4,15 @@ import com.dexterslab.tictactoe.DataTypes._
 
 object Api {
 
-  def move(board: PlayableBoard, position: Position, player: Player): Board = {
+  def move(board: PlayableBoard, position: Position, player: Player): MoveResult = {
     board match {
-      case EmptyBoard => InPlayBoard(List(OccupiedCell(position, player)))
+      case EmptyBoard => SuccessfulMove(InPlayBoard(List(OccupiedCell(position, player))))
       case InPlayBoard(cells) => {
         val newCells = OccupiedCell(position, player) :: cells
         if (newCells.count(isOccupied) == 9) {
-          FinishedBoard(newCells.map { case cell: OccupiedCell => cell })
+          SuccessfulMove(FinishedBoard(newCells.map { case cell: OccupiedCell => cell }))
         } else {
-          InPlayBoard(newCells)
+          SuccessfulMove(InPlayBoard(newCells))
         }
       }
     }

@@ -6,6 +6,10 @@ object DataTypes {
   case object PlayerX extends Player
   case object PlayerO extends Player
 
+  sealed trait MoveResult
+  case object InvalidMove extends MoveResult
+  case class SuccessfulMove(board: Board) extends MoveResult
+
   case class Position(x: Int, y: Int)
 
   sealed trait Cell
