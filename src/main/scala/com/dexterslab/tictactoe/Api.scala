@@ -64,7 +64,10 @@ object Api {
     }
   }
 
-  def playerAt(board: HasBeenPlayed, position: Position): Option[Player] = ???
+  def playerAt(board: HasBeenPlayed, position: Position): Option[Player] = {
+    val cell = board.cells.find(isOccupiedAtPosition(_, position))
+    cell.flatMap(_.playerAt)
+  }
 
   def takeBack(board: HasBeenPlayed): PlayableBoard = ???
 

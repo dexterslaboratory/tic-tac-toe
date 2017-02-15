@@ -14,19 +14,35 @@ object DataTypes {
 
   sealed trait Cell {
     def position: Position
+
+    def playerAt: Option[Player] =  this match {
+      case EmptyCell(_) => None
+      case OccupiedCell(_, player) => Some(player)
+    }
   }
   case class EmptyCell(override val position: Position) extends Cell
   case class OccupiedCell(override val position: Position, player: Player) extends Cell
 
-  sealed trait Board
+  sealed trait Board {
+    def cells: List[Cell]
+  }
   sealed trait PlayableBoard extends Board
   sealed trait HasBeenPlayed extends Board
   sealed trait HasFinished extends Board
 
-  case object EmptyBoard extends PlayableBoard
-  case class InPlayBoard(cells: List[Cell]) extends PlayableBoard with HasBeenPlayed
-  case class WinningBoard(cells: List[Cell]) extends HasBeenPlayed with HasFinished
-  case class FinishedBoard(cells: List[OccupiedCell]) extends HasBeenPlayed with HasFinished
+  case object EmptyBoard extends PlayableBoard {
+    override val cells: List[EmptyCell] = {
+      val startingPositions =
+        (for {
+          r <- 0 to 2
+          c <- 0 to 2
+        } yield Position(r, c)).toList
+      startingPositions.map(EmptyCell)
+    }
+  }
+  case class InPlayBoard(override val cells: List[Cell]) extends PlayableBoard with HasBeenPlayed
+  case class WinningBoard(override val cells: List[Cell]) extends HasBeenPlayed with HasFinished
+  case class FinishedBoard(override val cells: List[OccupiedCell]) extends HasBeenPlayed with HasFinished
 
   sealed trait GameResult
   case class Winner(player: Player) extends GameResult
