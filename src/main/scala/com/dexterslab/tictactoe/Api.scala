@@ -22,24 +22,43 @@ object Api {
     }
   }
 
-  def checkWinningPosition(positions: List[Position]): Boolean = {
-    def straightWinningPositions(rowsOrColumns: List[Int]) = {
-      val ps = List(0,1,2)
+  def whoWon(board: HasFinished): GameResult = {
+
+    def horizontalOrVerticalWinningPositions(rowsOrColumns: List[Int]) = {
+      val ps = List(0, 1, 2)
       ps.map(p => rowsOrColumns.count(p == _)).count(_ == 3) == 1
     }
 
-    val diagonalWinningPositions = positions.map(p => p.x - p.y).count(_ == 0) == 3 || positions.map(p => p.x + p.y).count(_ == 2) == 3
+    def checkWinningPosition(positions: List[Position]): Boolean = {
+      val horizontalWinningPositions = horizontalOrVerticalWinningPositions(positions.map(_.x))
+      val verticalWinningPositions = horizontalOrVerticalWinningPositions(positions.map(_.y))
+      val mainDiagonalWinningPositions = positions.map(p => p.x - p.y).count(_ == 0) == 3
+      val crossDiagonalWinningPositions = positions.map(p => p.x + p.y).count(_ == 2) == 3
+      horizontalWinningPositions ||
+        verticalWinningPositions ||
+          mainDiagonalWinningPositions ||
+            crossDiagonalWinningPositions
+    }
 
-    straightWinningPositions(positions.map(_.x)) || straightWinningPositions(positions.map(_.y)) || diagonalWinningPositions
-  }
+    def findGameResult(occupiedCells: List[OccupiedCell]): GameResult = {
+      val playersToOccupiedCells = occupiedCells.groupBy(_.player)
+      val winningPlayer = for {
+        playerToOccupiedCells <- playersToOccupiedCells if checkWinningPosition(playerToOccupiedCells._2.map(_.position))
+      } yield Winner(playerToOccupiedCells._1)
+      winningPlayer.headOption.getOrElse(Draw)
+    }
 
-  def whoWon(board: FinishedBoard): GameResult = {
-    val positionsByPlayerO = board.cells.map(o => if(o.player == PlayerO) o.position else Position)
-    val positionsByPlayerX = board.cells.map(o => if(o.player == PlayerX) o.position else Position)
+    board match {
+      case FinishedBoard(occupiedCells) => findGameResult(occupiedCells)
 
-    if(checkWinningPosition(positionsByPlayerO)) Winner(PlayerO)
-    else if (checkWinningPosition(positionsByPlayerX)) Winner(PlayerX)
-    else Draw
+      case WinningBoard(cells) => {
+        val occupiedCells = cells flatMap {
+          case _: EmptyCell => None
+          case occ: OccupiedCell => Some(occ)
+        }
+        findGameResult(occupiedCells)
+      }
+    }
   }
 
   def playerAt(board: HasBeenPlayed, position: Position): Option[Player] = ???
@@ -54,8 +73,8 @@ object Api {
   }
 
   private def isOccupiedAtPosition(cell: Cell, position: Position) = cell match {
-    case OccupiedCell(p, _) if p == position  => true
-    case _                                    => false
+    case OccupiedCell(p, _) if p == position => true
+    case _ => false
   }
 
 }
