@@ -71,7 +71,11 @@ object Api {
 
   def takeBack(board: HasBeenPlayed): PlayableBoard = ???
 
-  def isDraw(board: FinishedBoard): Boolean = ???
+  def isDraw(board: FinishedBoard): Boolean =
+    whoWon(board) match {
+      case Draw => true
+      case _    => false
+    }
 
   private def isOccupied(cell: Cell): Boolean = cell match {
     case EmptyCell(_) => false
