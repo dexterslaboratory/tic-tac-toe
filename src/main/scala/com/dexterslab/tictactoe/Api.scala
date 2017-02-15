@@ -4,6 +4,23 @@ import com.dexterslab.tictactoe.DataTypes._
 
 object Api {
 
+  private def checkWinningPosition(positions: List[Position]): Boolean = {
+
+    def horizontalOrVerticalWinningPositions(rowsOrColumns: List[Int]) = {
+      val ps = List(0, 1, 2)
+      ps.map(p => rowsOrColumns.count(p == _)).count(_ == 3) == 1
+    }
+
+    val horizontalWinningPositions = horizontalOrVerticalWinningPositions(positions.map(_.x))
+    val verticalWinningPositions = horizontalOrVerticalWinningPositions(positions.map(_.y))
+    val mainDiagonalWinningPositions = positions.map(p => p.x - p.y).count(_ == 0) == 3
+    val crossDiagonalWinningPositions = positions.map(p => p.x + p.y).count(_ == 2) == 3
+    horizontalWinningPositions ||
+      verticalWinningPositions ||
+      mainDiagonalWinningPositions ||
+      crossDiagonalWinningPositions
+  }
+
   def move(board: PlayableBoard, position: Position, player: Player): MoveResult = {
     board match {
       case EmptyBoard => SuccessfulMove(InPlayBoard(List(OccupiedCell(position, player))))
@@ -12,7 +29,9 @@ object Api {
           InvalidMove
         } else {
           val newCells = OccupiedCell(position, player) :: cells
-          if (newCells.count(isOccupied) == 9) {
+          if (checkWinningPosition(newCells.map(_.position))) {
+            SuccessfulMove(WinningBoard(newCells))
+          } else if (newCells.count(isOccupied) == 9) {
             SuccessfulMove(FinishedBoard(newCells.map { case cell: OccupiedCell => cell }))
           } else {
             SuccessfulMove(InPlayBoard(newCells))
@@ -23,22 +42,6 @@ object Api {
   }
 
   def whoWon(board: HasFinished): GameResult = {
-
-    def horizontalOrVerticalWinningPositions(rowsOrColumns: List[Int]) = {
-      val ps = List(0, 1, 2)
-      ps.map(p => rowsOrColumns.count(p == _)).count(_ == 3) == 1
-    }
-
-    def checkWinningPosition(positions: List[Position]): Boolean = {
-      val horizontalWinningPositions = horizontalOrVerticalWinningPositions(positions.map(_.x))
-      val verticalWinningPositions = horizontalOrVerticalWinningPositions(positions.map(_.y))
-      val mainDiagonalWinningPositions = positions.map(p => p.x - p.y).count(_ == 0) == 3
-      val crossDiagonalWinningPositions = positions.map(p => p.x + p.y).count(_ == 2) == 3
-      horizontalWinningPositions ||
-        verticalWinningPositions ||
-          mainDiagonalWinningPositions ||
-            crossDiagonalWinningPositions
-    }
 
     def findGameResult(occupiedCells: List[OccupiedCell]): GameResult = {
       val playersToOccupiedCells = occupiedCells.groupBy(_.player)

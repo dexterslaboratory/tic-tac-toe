@@ -12,9 +12,11 @@ object DataTypes {
 
   case class Position(x: Int, y: Int)
 
-  sealed trait Cell
-  case class EmptyCell(position: Position) extends Cell
-  case class OccupiedCell(position: Position, player: Player) extends Cell
+  sealed trait Cell {
+    def position: Position
+  }
+  case class EmptyCell(override val position: Position) extends Cell
+  case class OccupiedCell(override val position: Position, player: Player) extends Cell
 
   sealed trait Board
   sealed trait PlayableBoard extends Board

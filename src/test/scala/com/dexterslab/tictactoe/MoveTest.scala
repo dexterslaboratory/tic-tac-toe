@@ -57,4 +57,17 @@ class MoveTest extends FlatSpec with Matchers {
     moveResult should be(successfulMove)
   }
 
+  it should "return a successful move with a winning board if a player wins" in {
+    val playerO = PlayerO
+    val playerX = PlayerX
+    val newPosition = Position(0, 2)
+    val cells = List(OccupiedCell(Position(0,0), playerX), OccupiedCell(Position(1,0), playerO),
+                     OccupiedCell(Position(0,1), playerX), OccupiedCell(Position(2,0), playerO))
+    val currentBoard = InPlayBoard(cells)
+    val successfulMove = SuccessfulMove(WinningBoard(OccupiedCell(newPosition, playerX) :: cells))
+    val moveResult = move(currentBoard, newPosition, playerX)
+
+    moveResult should be(successfulMove)
+  }
+
 }
