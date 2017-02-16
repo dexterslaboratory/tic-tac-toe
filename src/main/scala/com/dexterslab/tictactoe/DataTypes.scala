@@ -16,8 +16,23 @@ object DataTypes {
     def position: Position
 
     def playerAt: Option[Player] =  this match {
-      case EmptyCell(_) => None
+      case EmptyCell(_)            => None
       case OccupiedCell(_, player) => Some(player)
+    }
+
+    def isOccupied: Boolean = this match {
+      case EmptyCell(_)       => false
+      case OccupiedCell(_, _) => true
+    }
+
+    def isOccupiedAtPosition(position: Position) = this match {
+      case OccupiedCell(p, _) if p == position => true
+      case _                                   => false
+    }
+
+    def getOccupiedCell: Option[OccupiedCell] = this match {
+      case occ: OccupiedCell => Some(occ)
+      case _ => None
     }
   }
   case class EmptyCell(override val position: Position) extends Cell

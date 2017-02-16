@@ -44,20 +44,20 @@ class MoveTest extends FlatSpec with Matchers {
   }
 
   it should "return a successful move with a finished board if nine moves have been played" in {
-    val positions = (for (i <- 0 to 2;
-                          j <- 0 to 2) yield Position(i, j)).toList.take(8)
     val playerO = PlayerO
     val playerX = PlayerX
-    val cells = positions.map(OccupiedCell(_, playerO))
+    val cells = List(OccupiedCell(Position(0,0), playerO), OccupiedCell(Position(1,0), playerX),
+                     OccupiedCell(Position(2,0), playerX), OccupiedCell(Position(0,1), playerX),
+                     OccupiedCell(Position(1,1), playerX), OccupiedCell(Position(2,1), playerO),
+                     OccupiedCell(Position(0,2), playerO), OccupiedCell(Position(1,2), playerO))
     val newPosition = Position(2, 2)
     val currentBoard = InPlayBoard(cells)
     val successfulMove = SuccessfulMove(FinishedBoard(OccupiedCell(newPosition, playerX) :: cells))
     val moveResult = move(currentBoard, newPosition, playerX)
-
     moveResult should be(successfulMove)
   }
 
-  it should "return a successful move with a winning board if a player wins" in {
+  it should "return a successful move with a winning board if nine moves have been played" in {
     val playerO = PlayerO
     val playerX = PlayerX
     val newPosition = Position(0, 2)
